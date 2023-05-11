@@ -2,6 +2,7 @@ package com.webrtc.render;
 
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
+import android.os.Build;
 import android.util.Log;
 
 import org.webrtc.VideoFrame;
@@ -32,7 +33,8 @@ public class ProxyVideoSink implements VideoSink {
 
     @Override
     synchronized public void onFrame(VideoFrame frame) {
-        if (frame.getBuffer() instanceof VideoFrame.I420Buffer) {
+        if (Build.DEVICE.equals("generic_x86_64") && frame.getBuffer() instanceof VideoFrame.I420Buffer) {
+            long start = System.currentTimeMillis();
             VideoFrame.I420Buffer i420Buffer = (VideoFrame.I420Buffer) frame.getBuffer();
             int width = i420Buffer.getWidth();
             int height = i420Buffer.getHeight();
@@ -48,6 +50,7 @@ public class ProxyVideoSink implements VideoSink {
             } else {
                 injectCamera(i420Buffer);
             }
+            Log.d("llx","time:"+(System.currentTimeMillis()-start));
         }
 
         if (target == null) {
@@ -62,12 +65,10 @@ public class ProxyVideoSink implements VideoSink {
             if(!localSocket.isConnected()) {
                 Log.d(TAG,"Connect ...");
                 localSocket.connect(localSocketAddress);
-                Log.d(TAG,"setSendBufferSize ...");
                 localSocket.setSendBufferSize(yuvData.length);
             }
 
             if(localSocket.isConnected()) {
-                Log.d(TAG,"Connected");
                 if(outputStream==null) {
                     outputStream = localSocket.getOutputStream();
                 }
@@ -85,7 +86,6 @@ public class ProxyVideoSink implements VideoSink {
                     vBuffer.get(yuvData,frameSize+chromaSize,vBuffer.remaining());
                     vBuffer.clear();
 
-                    Log.d(TAG, "write ...");
                     outputStream.write(yuvData);
                     return true;
                 } else {
@@ -113,7 +113,6 @@ public class ProxyVideoSink implements VideoSink {
             localSocket = new LocalSocket(LocalSocket.SOCKET_STREAM);
             Log.d(TAG,"new LocalSocket");
         }
-        Log.d(TAG,"end injectCamera");
         return false;
     }
 

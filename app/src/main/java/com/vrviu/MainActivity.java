@@ -47,7 +47,7 @@ public class MainActivity extends BaseActivity implements IUserState {
             initCall();
         }
 
-        if(WebRTCEngine.mediaProjectionPermissionResultData==null) {//申请录屏权限
+        if(WebRTCEngine.needRequestMediaProjectionPermission()) {//申请录屏权限
             MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
             if (mediaProjectionManager != null) {
                 startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);

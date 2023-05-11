@@ -11,7 +11,7 @@ import java.util.List;
 
 public class VoipEvent implements ISessionEvent {
     private static final String TAG = "VoipEvent";
-    private final AsyncPlayer ringPlayer;
+    private AsyncPlayer ringPlayer;
 
     public VoipEvent() {
         ringPlayer = new AsyncPlayer(null);
