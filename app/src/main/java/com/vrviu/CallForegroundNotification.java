@@ -125,6 +125,4 @@ public class CallForegroundNotification extends ContextWrapper {
         Log.d(TAG, "getChannelNotificationQ");
         return notificationBuilder.build();
     }
-
-
 }

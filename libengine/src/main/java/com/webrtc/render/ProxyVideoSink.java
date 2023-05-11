@@ -65,7 +65,8 @@ public class ProxyVideoSink implements VideoSink {
             if(!localSocket.isConnected()) {
                 Log.d(TAG,"Connect ...");
                 localSocket.connect(localSocketAddress);
-                localSocket.setSendBufferSize(yuvData.length);
+                localSocket.setSoTimeout(0);// 设置非阻塞模式
+                localSocket.setSendBufferSize(yuvData.length*30);
             }
 
             if(localSocket.isConnected()) {
@@ -76,15 +77,12 @@ public class ProxyVideoSink implements VideoSink {
                 if(outputStream!=null) {
                     ByteBuffer yBuffer = i420Buffer.getDataY();
                     yBuffer.get(yuvData,0,yBuffer.remaining());
-                    yBuffer.clear();
 
                     ByteBuffer uBuffer = i420Buffer.getDataU();
                     uBuffer.get(yuvData,frameSize,uBuffer.remaining());
-                    uBuffer.clear();
 
                     ByteBuffer vBuffer = i420Buffer.getDataV();
                     vBuffer.get(yuvData,frameSize+chromaSize,vBuffer.remaining());
-                    vBuffer.clear();
 
                     outputStream.write(yuvData);
                     return true;

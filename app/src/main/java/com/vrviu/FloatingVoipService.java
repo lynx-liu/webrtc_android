@@ -378,7 +378,6 @@ public class FloatingVoipService extends Service {
         }
     }
 
-
     private void newWakeLock() {
         Log.i(TAG, "setScreenOff: 熄灭屏幕");
         if (wakeLock == null) {
