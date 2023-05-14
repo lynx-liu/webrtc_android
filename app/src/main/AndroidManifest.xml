@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.vrviu.webrtc">
+    package="com.android.webrtc">
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -23,7 +23,7 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
 
     <application
-        android:name="com.vrviu.App"
+        android:name="com.android.App"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -35,7 +35,7 @@
         tools:ignore="UnusedAttribute">
 
         <activity
-            android:name="com.vrviu.LoginActivity"
+            android:name="com.android.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
@@ -48,10 +48,10 @@
         </activity>
 
 
-        <activity android:name="com.vrviu.MainActivity" />
+        <activity android:name="com.android.MainActivity" />
 
         <activity
-            android:name="com.vrviu.CallSingleActivity"
+            android:name="com.android.CallSingleActivity"
             android:screenOrientation="portrait"
             android:showOnLockScreen="true"
             android:showWhenLocked="true"
@@ -66,12 +66,12 @@
         </activity>
 
         <activity
-            android:name="com.vrviu.CallMultiActivity"
+            android:name="com.android.CallMultiActivity"
             android:screenOrientation="portrait"
             android:showOnLockScreen="true"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <receiver android:name="com.vrviu.VoipReceiver"
+        <receiver android:name="com.android.VoipReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.voip.Receiver" />
@@ -79,7 +79,7 @@
         </receiver>
 
         <service
-            android:name="com.vrviu.FloatingVoipService"
+            android:name="com.android.FloatingVoipService"
             android:enabled="true"
             android:exported="true" />
     </application>
