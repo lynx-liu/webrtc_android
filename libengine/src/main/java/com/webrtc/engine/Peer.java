@@ -18,6 +18,7 @@ import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceViewRenderer;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     private final List<PeerConnection.IceServer> mIceLis;
     private final IPeerEvent mEvent;
     private boolean isOffer;
+    private final DataChannel controlChannel;
 
     public MediaStream _remoteStream;
     public SurfaceViewRenderer renderer;
@@ -43,6 +45,8 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         mUserId = userId;
         queuedRemoteCandidates = new ArrayList<>();
         this.pc = createPeerConnection();
+
+        controlChannel = pc.createDataChannel("ControlChannel", new DataChannel.Init());
         Log.d("llx", "create Peer:" + mUserId);
     }
 
@@ -53,6 +57,12 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         } else {
             return null;
         }
+    }
+
+    public void sendControlMessage(String msg) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap( msg.getBytes());
+        DataChannel.Buffer buffer = new DataChannel.Buffer(byteBuffer, false);
+        controlChannel.send(buffer);
     }
 
     public void setOffer(boolean isOffer) {
@@ -210,7 +220,37 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onDataChannel(DataChannel dataChannel) {
-        Log.i(TAG, "onDataChannel:");
+        Log.i("llx", "onDataChannel:");
+        dataChannel.registerObserver(new DataChannel.Observer() {
+            @Override
+            public void onBufferedAmountChange(long l) {
+                Log.d("llx","onBufferedAmouuntChange："+l);
+            }
+
+            @Override
+            public void onStateChange() {
+                DataChannel.State state = controlChannel.state();
+                Log.d("llx","onStateChange: " + state);
+            }
+
+            @Override
+            public void onMessage(DataChannel.Buffer buffer) {
+                ByteBuffer data = buffer.data;
+                byte[] byteArray = new byte[data.remaining()];
+                data.get(byteArray);
+                // 处理接收到的数据
+                String receivedData = bytesToHexString(byteArray);
+                Log.d("llx", "Received data: " + receivedData);
+            }
+        });
+    }
+
+    private String bytesToHexString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
     }
 
     @Override

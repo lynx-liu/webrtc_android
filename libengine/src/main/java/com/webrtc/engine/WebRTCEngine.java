@@ -302,6 +302,10 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public void switchCamera() {
+        for (Peer peer : peers.values()) {
+            peer.sendControlMessage("0123456789");
+        }
+
         if (isSwitch) return;
         isSwitch = true;
         if (videoCapturer == null) return;
