@@ -22,6 +22,8 @@ public interface IEngine {
      */
     void joinRoom(List<String> userIds);
 
+    boolean sendData(byte[] data);
+
     /**
      * 有人进入房间
      */

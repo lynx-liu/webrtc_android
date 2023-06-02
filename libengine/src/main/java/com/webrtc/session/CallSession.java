@@ -141,6 +141,10 @@ public class CallSession implements EngineCallback {
 		release(EnumType.CallEndReason.Hangup);
     }
 
+    public boolean sendData(byte[] data) {
+        return avEngine.sendData(data);
+    }
+
     // 离开房间
     public void leave() {
         executor.execute(() -> {

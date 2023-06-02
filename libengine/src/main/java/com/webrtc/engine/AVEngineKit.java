@@ -110,6 +110,12 @@ public class AVEngineKit {
         mCurrentCallSession.joinHome(room);
     }
 
+    public boolean sendData(byte[] data) {
+        if(mCurrentCallSession==null)
+            return false;
+        return mCurrentCallSession.sendData(data);
+    }
+
     public void createAndJoinRoom(Context context, String room) {
         // 忙线中
         if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {

@@ -1,7 +1,10 @@
 package com.webrtc.engine;
 
 import android.content.Context;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.Log;
+import android.view.MotionEvent;
 
 import com.webrtc.render.ProxyVideoSink;
 
@@ -33,6 +36,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     private final IPeerEvent mEvent;
     private boolean isOffer;
     private final DataChannel controlChannel;
+    private ControlUtil controlUtil;
 
     public MediaStream _remoteStream;
     public SurfaceViewRenderer renderer;
@@ -59,10 +63,10 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         }
     }
 
-    public void sendControlMessage(String msg) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap( msg.getBytes());
-        DataChannel.Buffer buffer = new DataChannel.Buffer(byteBuffer, false);
-        controlChannel.send(buffer);
+    public boolean sendData(byte[] data) {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        DataChannel.Buffer buffer = new DataChannel.Buffer(byteBuffer, true);
+        return controlChannel.send(buffer);
     }
 
     public void setOffer(boolean isOffer) {
@@ -81,7 +85,6 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         if (pc == null) return;
         Log.d("llx", "createAnswer");
         pc.createAnswer(this, offerOrAnswerConstraint());
-
     }
 
     // 设置LocalDescription
@@ -125,6 +128,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     }
 
     public void createRender(EglBase mRootEglBase, Context context, boolean isOverlay) {
+        controlUtil = new ControlUtil(context);
         renderer = new SurfaceViewRenderer(context);
         renderer.init(mRootEglBase.getEglBaseContext(), new RendererCommon.RendererEvents() {
             @Override
@@ -240,7 +244,21 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
                 data.get(byteArray);
                 // 处理接收到的数据
                 String receivedData = bytesToHexString(byteArray);
-                Log.d("llx", "Received data: " + receivedData);
+                Log.d("llx", "rev: " + receivedData);
+                if(controlUtil==null) return;
+
+                int action = byteArray[0];
+                int x = ((byteArray[1]&0xFF)<<8)|(byteArray[2]&0xFF);
+                int y = ((byteArray[3]&0xFF)<<8)|(byteArray[4]&0xFF);
+                switch (action) {
+                    case MotionEvent.ACTION_CANCEL:
+                        action = MotionEvent.ACTION_UP;
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_MOVE:
+                    case MotionEvent.ACTION_UP:
+                        controlUtil.injectTouch(action,0, new Point(x,y),1.0f,0);
+                        break;
+                }
             }
         });
     }

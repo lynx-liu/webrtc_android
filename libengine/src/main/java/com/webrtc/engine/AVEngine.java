@@ -44,6 +44,14 @@ public class AVEngine implements IEngine {
     }
 
     @Override
+    public boolean sendData(byte[] data) {
+        if (iEngine == null) {
+            return false;
+        }
+        return iEngine.sendData(data);
+    }
+
+    @Override
     public void userIn(String userId) {
         if (iEngine == null) {
             return;
