@@ -2,9 +2,11 @@ package com.webrtc.engine;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.hardware.display.DisplayManager;
 import android.hardware.input.InputManager;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Display;
 import android.view.InputDevice;
 import android.view.InputEvent;
 import android.view.KeyCharacterMap;
@@ -21,12 +23,17 @@ public final class ControlUtil  {
 
     private static final int DEVICE_ID_VIRTUAL = -1;
     private long lastTouchDown;
+    private Point screenSize = new Point();
     private final InputManager inputManager;
     private final PointersState pointersState = new PointersState();
     private final MotionEvent.PointerProperties[] pointerProperties = new MotionEvent.PointerProperties[PointersState.MAX_POINTERS];
     private final MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[PointersState.MAX_POINTERS];
 
     public ControlUtil(final Context context){
+        DisplayManager displayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+        Display display = displayManager.getDisplay(0);
+        display.getRealSize(screenSize);
+
         inputManager = (InputManager) context.getSystemService(Context.INPUT_SERVICE);
 
         for (int i = 0; i < PointersState.MAX_POINTERS; ++i) {
@@ -40,6 +47,10 @@ public final class ControlUtil  {
             pointerProperties[i] = props;
             pointerCoords[i] = coords;
         }
+    }
+
+    public Point getScreenSize() {
+        return screenSize;
     }
 
     public boolean injectTouch(int action, final long pointerId, final Point point, final float pressure, final int buttons) {

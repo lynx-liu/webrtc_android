@@ -91,17 +91,19 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
             });
         }
 
-        fullscreenRenderer.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Log.d("llx", event.toString());
-                int action = event.getAction();
-                int x = (int) event.getX();
-                int y = (int) event.getY();
-                gEngineKit.sendData(new byte[]{(byte) action, (byte) ((x>>8)&0xFF), (byte) (x&0xFF), (byte) ((y>>8)&0xFF), (byte) (y&0xFF)});
-                return true;
-            }
-        });
+        if(!Build.DEVICE.equals("generic_x86_64")) {
+            fullscreenRenderer.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    Log.d("llx", event.toString());
+                    int action = event.getAction();
+                    int x = (int) (event.getX() * 65536 / fullscreenRenderer.getWidth());
+                    int y = (int) (event.getY() * 65536 / fullscreenRenderer.getHeight());
+                    gEngineKit.sendData(new byte[]{(byte) action, (byte) ((x >> 24) & 0xFF), (byte) ((x >> 16) & 0xFF), (byte) ((x >> 8) & 0xFF), (byte) (x & 0xFF), (byte) ((y >> 24) & 0xFF), (byte) ((y >> 16) & 0xFF), (byte) ((y >> 8) & 0xFF), (byte) (y & 0xFF)});
+                    return true;
+                }
+            });
+        }
 //        if(isOutgoing){ //测试崩溃对方是否会停止
 //            lytParent.postDelayed(() -> {
 //                int i = 1 / 0;

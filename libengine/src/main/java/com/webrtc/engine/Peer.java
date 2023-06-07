@@ -37,6 +37,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     private boolean isOffer;
     private final DataChannel controlChannel;
     private ControlUtil controlUtil;
+    private Point screenSize;
 
     public MediaStream _remoteStream;
     public SurfaceViewRenderer renderer;
@@ -129,6 +130,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     public void createRender(EglBase mRootEglBase, Context context, boolean isOverlay) {
         controlUtil = new ControlUtil(context);
+        screenSize = controlUtil.getScreenSize();
         renderer = new SurfaceViewRenderer(context);
         renderer.init(mRootEglBase.getEglBaseContext(), new RendererCommon.RendererEvents() {
             @Override
@@ -248,8 +250,8 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
                 if(controlUtil==null) return;
 
                 int action = byteArray[0];
-                int x = ((byteArray[1]&0xFF)<<8)|(byteArray[2]&0xFF);
-                int y = ((byteArray[3]&0xFF)<<8)|(byteArray[4]&0xFF);
+                int x = ((((byteArray[1]&0xFF)<<24)|((byteArray[2]&0xFF)<<16)|((byteArray[3]&0xFF)<<8)|(byteArray[4]&0xFF))*screenSize.x)>>16;
+                int y = ((((byteArray[5]&0xFF)<<24)|((byteArray[6]&0xFF)<<16)|((byteArray[7]&0xFF)<<8)|(byteArray[8]&0xFF))*screenSize.y)>>16;
                 switch (action) {
                     case MotionEvent.ACTION_CANCEL:
                         action = MotionEvent.ACTION_UP;

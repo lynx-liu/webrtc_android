@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
+    def platformType = getPlatform()
+
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion '30.0.3'
     defaultConfig {
@@ -62,10 +64,19 @@ android {
         }
 
         debug {
-            applicationIdSuffix ".debug"
             minifyEnabled false
+            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+}
+
+def static getPlatform() {
+    def adbCommand = 'adb shell getprop ro.product.device'
+    Process process = adbCommand.execute()
+    process.in.eachLine { processing ->
+        println processing
+        return processing
     }
 }
 
