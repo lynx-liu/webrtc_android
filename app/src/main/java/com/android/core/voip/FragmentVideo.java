@@ -37,6 +37,8 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
     private FrameLayout pipRenderer;
     private LinearLayout inviteeInfoContainer;
     private boolean isFromFloatingView = false;
+    private int mVideoWidth = 1280;
+    private int mVideoHeight = 720;
     private SurfaceViewRenderer localSurfaceView;
     private SurfaceViewRenderer remoteSurfaceView;
 
@@ -161,6 +163,14 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
             didCreateLocalVideoTrack();
             if (session != null) {
                 didReceiveRemoteVideoTrack(session.mTargetId);
+                fullscreenRenderer.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        int frameLayoutWidth = fullscreenRenderer.getWidth(); // 获取 FrameLayout 的宽度
+                        int frameLayoutHeight = frameLayoutWidth * mVideoWidth / mVideoHeight; // 计算 FrameLayout 的高度
+                        fullscreenRenderer.setLayoutParams(new FrameLayout.LayoutParams(frameLayoutWidth, frameLayoutHeight));
+                    }
+                });
             }
         }
     }
@@ -242,6 +252,8 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
             @Override
             public void onFrameResolutionChanged(int videoWidth, int videoHeight, int rotation) {
                 Log.d(TAG, "videoWidth:"+videoWidth+", videoHeight:"+videoHeight+", rotation:"+rotation);
+                mVideoWidth = videoWidth;
+                mVideoHeight = videoHeight;
 
                 runOnUiThread(() -> {
                     int frameLayoutWidth = fullscreenRenderer.getWidth(); // 获取 FrameLayout 的宽度
