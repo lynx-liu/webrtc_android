@@ -403,7 +403,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             return false;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            AudioDeviceInfo[] audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_ALL);
+            AudioDeviceInfo[] audioDevices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
             for (AudioDeviceInfo deviceInfo : audioDevices) {
                 if (deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES
                         || deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADSET) {
@@ -589,6 +589,10 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     public static Intent mediaProjectionPermissionResultData;
     public static boolean needRequestMediaProjectionPermission() {
         return mediaProjectionPermissionResultData==null && screencaptureEnabled;
+    }
+
+    public static boolean isScreencaptureEnabled() {
+        return screencaptureEnabled;
     }
 
     @TargetApi(21)

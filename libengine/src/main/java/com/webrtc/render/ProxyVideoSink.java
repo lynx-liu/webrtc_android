@@ -5,6 +5,8 @@ import android.net.LocalSocketAddress;
 import android.os.Build;
 import android.util.Log;
 
+import com.webrtc.engine.WebRTCEngine;
+
 import org.webrtc.VideoFrame;
 import org.webrtc.VideoSink;
 
@@ -33,8 +35,7 @@ public class ProxyVideoSink implements VideoSink {
 
     @Override
     synchronized public void onFrame(VideoFrame frame) {
-        if (Build.DEVICE.equals("generic_x86_64") && frame.getBuffer() instanceof VideoFrame.I420Buffer) {
-            long start = System.currentTimeMillis();
+        if (WebRTCEngine.isScreencaptureEnabled() && frame.getBuffer() instanceof VideoFrame.I420Buffer) {
             VideoFrame.I420Buffer i420Buffer = (VideoFrame.I420Buffer) frame.getBuffer();
             int width = i420Buffer.getWidth();
             int height = i420Buffer.getHeight();
@@ -50,7 +51,6 @@ public class ProxyVideoSink implements VideoSink {
             } else {
                 injectCamera(i420Buffer);
             }
-            Log.d("llx","time:"+(System.currentTimeMillis()-start));
         }
 
         if (target == null) {

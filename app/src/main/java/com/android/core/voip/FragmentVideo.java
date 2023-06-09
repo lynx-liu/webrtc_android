@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 
+import com.webrtc.engine.WebRTCEngine;
 import com.webrtc.session.CallSession;
 import com.webrtc.session.EnumType.CallState;
 import com.android.core.util.RomUtil;
@@ -92,7 +93,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
             });
         }
 
-        if(!Build.DEVICE.equals("generic_x86_64")) {
+        if(!WebRTCEngine.isScreencaptureEnabled()) {
             fullscreenRenderer.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -142,7 +143,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
                 outgoingActionContainer.setVisibility(View.GONE);
                 connectedActionContainer.setVisibility(View.GONE);
                 descTextView.setText(R.string.av_video_invite);
-                if (currentState == CallState.Incoming) {
+                if (currentState == CallState.Incoming && !WebRTCEngine.isScreencaptureEnabled()) {
                     View surfaceView = gEngineKit.getCurrentSession().setupLocalVideo(false);
                     Log.d(TAG, "init surfaceView != null is " + (surfaceView != null) + "; isOutgoing = " + isOutgoing + "; currentState = " + currentState);
                     if (surfaceView != null) {
