@@ -106,6 +106,9 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
                 }
             });
         }
+
+        pipRenderer.setVisibility(View.GONE);
+
 //        if(isOutgoing){ //测试崩溃对方是否会停止
 //            lytParent.postDelayed(() -> {
 //                int i = 1 / 0;
@@ -212,7 +215,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
             if (fullscreenRenderer != null && fullscreenRenderer.getChildCount() != 0)
                 fullscreenRenderer.removeAllViews();
             fullscreenRenderer.addView(localSurfaceView);
-        } else {
+        } else if(pipRenderer.getVisibility()==View.VISIBLE){
             if (pipRenderer.getChildCount() != 0) pipRenderer.removeAllViews();
             pipRenderer.addView(localSurfaceView);
         }
@@ -220,8 +223,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
 
     @Override
     public void didReceiveRemoteVideoTrack(String userId) {
-        pipRenderer.setVisibility(View.VISIBLE);
-        if (localSurfaceView != null) {
+        if (localSurfaceView != null && pipRenderer.getVisibility()==View.VISIBLE) {
             localSurfaceView.setZOrderMediaOverlay(true);
             if (isOutgoing) {
                 if (localSurfaceView.getParent() != null) {
@@ -299,7 +301,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
         if (id == R.id.switchCameraImageView) {
             session.switchCamera();
         }
-        if (id == R.id.pip_video_view && remoteSurfaceView!=null) {
+        if (id == R.id.pip_video_view && remoteSurfaceView!=null && pipRenderer.getVisibility()==View.VISIBLE) {
             boolean isFullScreenRemote = fullscreenRenderer.getChildAt(0) == remoteSurfaceView;
             fullscreenRenderer.removeAllViews();
             pipRenderer.removeAllViews();
