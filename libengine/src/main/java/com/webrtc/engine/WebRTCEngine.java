@@ -285,7 +285,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
-    public View setupRemoteVideo(String userId, boolean isOverlay) {
+    public View setupRemoteVideo(String userId, boolean isOverlay, RendererCommon.RendererEvents rendererEvents) {
         if (TextUtils.isEmpty(userId)) {
             Log.e(TAG, "setupRemoteVideo userId is null ");
             return null;
@@ -294,7 +294,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         if (peer == null) return null;
 
         if (peer.renderer == null) {
-            peer.createRender(mRootEglBase, mContext, isOverlay);
+            peer.createRender(mRootEglBase, mContext, isOverlay, rendererEvents);
         }
 
         return peer.renderer;

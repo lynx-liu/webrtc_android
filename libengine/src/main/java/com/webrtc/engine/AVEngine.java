@@ -5,6 +5,8 @@ import android.view.View;
 
 import com.webrtc.session.EnumType;
 
+import org.webrtc.RendererCommon;
+
 import java.util.List;
 
 public class AVEngine implements IEngine {
@@ -141,11 +143,11 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public View setupRemoteVideo(String userId, boolean isO) {
+    public View setupRemoteVideo(String userId, boolean isO, RendererCommon.RendererEvents rendererEvents) {
         if (iEngine == null) {
             return null;
         }
-        return iEngine.setupRemoteVideo(userId, isO);
+        return iEngine.setupRemoteVideo(userId, isO, rendererEvents);
     }
 
     @Override

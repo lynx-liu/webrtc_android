@@ -128,21 +128,11 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         }
     }
 
-    public void createRender(EglBase mRootEglBase, Context context, boolean isOverlay) {
+    public void createRender(EglBase mRootEglBase, Context context, boolean isOverlay, RendererCommon.RendererEvents rendererEvents) {
         controlUtil = new ControlUtil(context);
         screenSize = controlUtil.getScreenSize();
         renderer = new SurfaceViewRenderer(context);
-        renderer.init(mRootEglBase.getEglBaseContext(), new RendererCommon.RendererEvents() {
-            @Override
-            public void onFirstFrameRendered() {
-                Log.d(TAG, "createRender onFirstFrameRendered");
-            }
-
-            @Override
-            public void onFrameResolutionChanged(int videoWidth, int videoHeight, int rotation) {
-                Log.d(TAG, "createRender onFrameResolutionChanged");
-            }
-        });
+        renderer.init(mRootEglBase.getEglBaseContext(), rendererEvents);
         renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
         renderer.setMirror(false);
         renderer.setZOrderMediaOverlay(isOverlay);

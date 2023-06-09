@@ -19,6 +19,7 @@ import com.android.core.util.RomUtil;
 import com.android.core.util.Utils;
 import com.android.webrtc.R;
 
+import org.webrtc.RendererCommon;
 import org.webrtc.SurfaceViewRenderer;
 
 /**
@@ -229,8 +230,24 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
             }
         }
 
-        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, false);
-        Log.d(TAG, "didReceiveRemoteVideoTrack,surfaceView = " + surfaceView);
+        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, false, new RendererCommon.RendererEvents() {
+            @Override
+            public void onFirstFrameRendered() {
+                Log.d(TAG, "createRender onFirstFrameRendered");
+            }
+
+            @Override
+            public void onFrameResolutionChanged(int videoWidth, int videoHeight, int rotation) {
+                Log.d(TAG, "videoWidth:"+videoWidth+", videoHeight:"+videoHeight+", rotation:"+rotation);
+
+                runOnUiThread(() -> {
+                    int frameLayoutWidth = fullscreenRenderer.getWidth(); // 获取 FrameLayout 的宽度
+                    int frameLayoutHeight = frameLayoutWidth * videoWidth / videoHeight; // 计算 FrameLayout 的高度
+                    fullscreenRenderer.setLayoutParams(new FrameLayout.LayoutParams(frameLayoutWidth, frameLayoutHeight));
+                });
+            }
+        });
+
         if (surfaceView != null) {
             fullscreenRenderer.setVisibility(View.VISIBLE);
             remoteSurfaceView = (SurfaceViewRenderer) surfaceView;

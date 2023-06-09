@@ -5,6 +5,8 @@ import android.view.View;
 
 import com.webrtc.session.EnumType;
 
+import org.webrtc.RendererCommon;
+
 import java.util.List;
 
 /**
@@ -88,7 +90,7 @@ public interface IEngine {
     /**
      * 开始远端预览
      */
-    View setupRemoteVideo(String userId, boolean isO);
+    View setupRemoteVideo(String userId, boolean isO, RendererCommon.RendererEvents rendererEvents);
 
     /**
      * 关闭远端预览

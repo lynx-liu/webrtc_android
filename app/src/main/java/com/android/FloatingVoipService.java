@@ -44,6 +44,8 @@ import com.android.webrtc.BuildConfig;
 import com.android.webrtc.R;
 
 
+import org.webrtc.RendererCommon;
+
 import java.util.Locale;
 import java.util.Objects;
 
@@ -365,7 +367,18 @@ public class FloatingVoipService extends Service {
         view.findViewById(R.id.audioLinearLayout).setVisibility(View.GONE);
         floatingView = Objects.requireNonNull(getFloatingView());
         floatingView.setVisibility(View.VISIBLE);
-        View surfaceView = session.setupRemoteVideo(session.mTargetId, true);
+        View surfaceView = session.setupRemoteVideo(session.mTargetId, true, new RendererCommon.RendererEvents() {
+            @Override
+            public void onFirstFrameRendered() {
+
+            }
+
+            @Override
+            public void onFrameResolutionChanged(int i, int i1, int i2) {
+
+            }
+        });
+
         if (surfaceView != null) {
             if (surfaceView.getParent() != null) {
                 ((ViewGroup) (surfaceView.getParent())).removeView(surfaceView);

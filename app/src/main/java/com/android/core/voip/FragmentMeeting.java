@@ -19,6 +19,8 @@ import com.android.App;
 import com.android.CallMultiActivity;
 import com.android.webrtc.R;
 
+import org.webrtc.RendererCommon;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -105,7 +107,18 @@ public class FragmentMeeting extends Fragment implements CallSession.CallSession
 
     @Override
     public void didReceiveRemoteVideoTrack(String userId) {
-        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, true);
+        View surfaceView = gEngineKit.getCurrentSession().setupRemoteVideo(userId, true, new RendererCommon.RendererEvents() {
+            @Override
+            public void onFirstFrameRendered() {
+
+            }
+
+            @Override
+            public void onFrameResolutionChanged(int i, int i1, int i2) {
+
+            }
+        });
+
         if (surfaceView != null) {
             videoViews.put(userId,surfaceView);
             multi_video_view.addView(surfaceView);

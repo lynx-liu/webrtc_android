@@ -12,6 +12,7 @@ import com.webrtc.engine.EngineCallback;
 import com.webrtc.engine.WebRTCEngine;
 
 import org.webrtc.IceCandidate;
+import org.webrtc.RendererCommon;
 import org.webrtc.SessionDescription;
 
 import java.lang.ref.WeakReference;
@@ -348,8 +349,8 @@ public class CallSession implements EngineCallback {
         return avEngine.setupLocalPreview(isOverlay);
     }
 
-    public View setupRemoteVideo(String userId, boolean isOverlay) {
-        return avEngine.setupRemoteVideo(userId, isOverlay);
+    public View setupRemoteVideo(String userId, boolean isOverlay, RendererCommon.RendererEvents rendererEvents) {
+        return avEngine.setupRemoteVideo(userId, isOverlay, rendererEvents);
     }
 
     //------------------------------------各种参数----------------------------------------------/
