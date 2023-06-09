@@ -332,9 +332,13 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
 
         // 切换到语音拨打
         if (id == R.id.outgoingAudioOnlyImageView || id == R.id.incomingAudioOnlyImageView || id == R.id.connectedAudioOnlyImageView) {
-            if (session != null) {
-                if (callSingleActivity != null) callSingleActivity.isAudioOnly = true;
-                session.switchToAudio();
+            if(WebRTCEngine.isScreencaptureEnabled()) {//投屏端切换语音时,对方也切换语音
+                if (session != null) {
+                    if (callSingleActivity != null) callSingleActivity.isAudioOnly = true;
+                    session.switchToAudio();
+                }
+            } else {//摄像头端切换语音时, 只关闭自己的摄像头和推流
+                gEngineKit.getCurrentSession().switchLocalVideoEnable();
             }
         }
 

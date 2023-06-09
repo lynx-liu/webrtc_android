@@ -98,6 +98,11 @@ public interface IEngine {
     void stopRemoteVideo();
 
     /**
+     * 开关本地视频
+     */
+    void switchLocalVideoEnable();
+
+    /**
      * 切换摄像头
      */
     void switchCamera();

@@ -158,6 +158,12 @@ public class AVEngine implements IEngine {
         iEngine.stopRemoteVideo();
     }
 
+    @Override
+    public void switchLocalVideoEnable() {
+        if(iEngine == null)
+            return;
+        iEngine.switchLocalVideoEnable();
+    }
 
     @Override
     public void switchCamera() {

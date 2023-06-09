@@ -305,6 +305,13 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     }
 
+    @Override
+    public void switchLocalVideoEnable() {
+        if (_localStream.videoTracks.size() > 0) {
+            _localStream.videoTracks.get(0).setEnabled(!_localStream.videoTracks.get(0).enabled());
+        }
+    }
+
     private boolean isSwitch = false; // 是否正在切换摄像头
 
     @Override

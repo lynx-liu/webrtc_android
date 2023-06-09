@@ -198,6 +198,10 @@ public class CallSession implements EngineCallback {
         avEngine.switchCamera();
     }
 
+    public void switchLocalVideoEnable() {
+        avEngine.switchLocalVideoEnable();
+    }
+
     // 释放资源
     private void release(EnumType.CallEndReason reason) {
         executor.execute(() -> {
