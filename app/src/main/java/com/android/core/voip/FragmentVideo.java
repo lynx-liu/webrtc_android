@@ -221,7 +221,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
         if (localSurfaceView.getParent() != null) {
             ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
         }
-        if (isOutgoing && remoteSurfaceView == null) {
+        if (isOutgoing && remoteSurfaceView == null  && !WebRTCEngine.isScreencaptureEnabled()) {
             if (fullscreenRenderer != null && fullscreenRenderer.getChildCount() != 0)
                 fullscreenRenderer.removeAllViews();
             fullscreenRenderer.addView(localSurfaceView);
