@@ -180,7 +180,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public void receiveAnswer(String userId, String sdp) {
-        Log.d("llx", "receiveAnswer--" + userId);
         Peer peer = peers.get(userId);
         if (peer != null) {
             SessionDescription sessionDescription = new SessionDescription(SessionDescription.Type.ANSWER, sdp);
@@ -190,7 +189,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     @Override
     public void receiveIceCandidate(String userId, String id, int label, String candidate) {
-        Log.d("llx", "receiveIceCandidate--" + userId);
         Peer peer = peers.get(userId);
         if (peer != null) {
             IceCandidate iceCandidate = new IceCandidate(id, label, candidate);

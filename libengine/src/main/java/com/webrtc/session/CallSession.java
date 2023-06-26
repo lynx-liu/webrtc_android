@@ -452,7 +452,6 @@ public class CallSession implements EngineCallback {
     public void onSendIceCandidate(String userId, IceCandidate candidate) {
         executor.execute(() -> {
             if (iSessionEvent != null) {
-                Log.d("llx", "onSendIceCandidate");
                 iSessionEvent.sendIceCandidate(userId, candidate.sdpMid, candidate.sdpMLineIndex, candidate.sdp);
             }
         });
@@ -462,7 +461,6 @@ public class CallSession implements EngineCallback {
     public void onSendOffer(String userId, SessionDescription description) {
         executor.execute(() -> {
             if (iSessionEvent != null) {
-                Log.d("llx", "onSendOffer");
                 iSessionEvent.sendOffer(userId, description.description);
             }
         });
@@ -472,7 +470,6 @@ public class CallSession implements EngineCallback {
     public void onSendAnswer(String userId, SessionDescription description) {
         executor.execute(() -> {
             if (iSessionEvent != null) {
-                Log.d("llx", "onSendAnswer");
                 iSessionEvent.sendAnswer(userId, description.description);
             }
         });

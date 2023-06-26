@@ -2,7 +2,6 @@ package com.webrtc.engine;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.graphics.PointF;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -77,20 +76,17 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     // 创建offer
     public void createOffer() {
         if (pc == null) return;
-        Log.d("llx", "createOffer");
         pc.createOffer(this, offerOrAnswerConstraint());
     }
 
     // 创建answer
     public void createAnswer() {
         if (pc == null) return;
-        Log.d("llx", "createAnswer");
         pc.createAnswer(this, offerOrAnswerConstraint());
     }
 
     // 设置LocalDescription
     public void setLocalDescription(SessionDescription sdp) {
-        Log.d("llx", "setLocalDescription");
         if (pc == null) return;
         pc.setLocalDescription(this, sdp);
     }
@@ -98,31 +94,25 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     // 设置RemoteDescription
     public void setRemoteDescription(SessionDescription sdp) {
         if (pc == null) return;
-        Log.d("llx", "setRemoteDescription");
         pc.setRemoteDescription(this, sdp);
     }
 
     //添加本地流
     public void addLocalStream(MediaStream stream) {
         if (pc == null) return;
-        Log.d("llx", "addLocalStream");
         pc.addStream(stream);
     }
 
     // 添加RemoteIceCandidate
     public synchronized void addRemoteIceCandidate(final IceCandidate candidate) {
-        Log.d("llx", "addRemoteIceCandidate");
         if (pc != null) {
             if (queuedRemoteCandidates != null) {
-                Log.d("llx", "addRemoteIceCandidate  2222");
                 synchronized (Peer.class) {
                     if (queuedRemoteCandidates != null) {
                         queuedRemoteCandidates.add(candidate);
                     }
                 }
-
             } else {
-                Log.d("llx", "addRemoteIceCandidate1111");
                 pc.addIceCandidate(candidate);
             }
         }
@@ -189,6 +179,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     public void onIceCandidate(IceCandidate candidate) {
         // 发送IceCandidate
         mEvent.onSendIceCandidate(mUserId, candidate);
+        Log.d("llx",candidate.sdp);
     }
 
     @Override
@@ -216,17 +207,15 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
     @Override
     public void onDataChannel(DataChannel dataChannel) {
-        Log.i("llx", "onDataChannel:");
         dataChannel.registerObserver(new DataChannel.Observer() {
             @Override
             public void onBufferedAmountChange(long l) {
-                Log.d("llx","onBufferedAmouuntChange："+l);
+
             }
 
             @Override
             public void onStateChange() {
                 DataChannel.State state = controlChannel.state();
-                Log.d("llx","onStateChange: " + state);
             }
 
             @Override
@@ -329,9 +318,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         Log.i(TAG, "SdpObserver onSetFailure:" + error);
     }
 
-
     private void drainCandidates() {
-        Log.i("llx", "drainCandidates");
         synchronized (Peer.class) {
             if (queuedRemoteCandidates != null) {
                 Log.d(TAG, "Add " + queuedRemoteCandidates.size() + " remote candidates");
