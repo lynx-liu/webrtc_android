@@ -58,7 +58,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private SurfaceTextureHelper surfaceTextureHelper;
     private SurfaceViewRenderer localRenderer;
     // 是否使用录屏
-    private static final boolean screencaptureEnabled = Build.DEVICE.equals("generic_x86_64");
+    private static final boolean screencaptureEnabled = Build.DEVICE.equals("generic_x86_64") || Build.DEVICE.equals("kona");
 
     private static final String VIDEO_TRACK_ID = "StreamV0";
     private static final String AUDIO_TRACK_ID = "StreamA0";
