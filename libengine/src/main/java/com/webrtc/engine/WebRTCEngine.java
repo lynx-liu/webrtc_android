@@ -456,7 +456,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         PeerConnection.IceServer var1 = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
                 .createIceServer();
         iceServers.add(var1);
-
+/*
         PeerConnection.IceServer var11 = PeerConnection.IceServer.builder("stun:42.192.40.58:3478?transport=udp")
                 .createIceServer();
         PeerConnection.IceServer var12 = PeerConnection.IceServer.builder("turn:42.192.40.58:3478?transport=udp")
@@ -471,6 +471,21 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         iceServers.add(var11);
         iceServers.add(var12);
         iceServers.add(var13);
+*/
+        PeerConnection.IceServer var21 = PeerConnection.IceServer.builder("stun:120.46.147.229:3478?transport=udp")
+                .createIceServer();
+        PeerConnection.IceServer var22 = PeerConnection.IceServer.builder("turn:120.46.147.229:3478?transport=udp")
+                .setUsername("ddssingsong")
+                .setPassword("123456")
+                .createIceServer();
+        PeerConnection.IceServer var23 = PeerConnection.IceServer.builder("turn:120.46.147.229:3478?transport=tcp")
+                .setUsername("ddssingsong")
+                .setPassword("123456")
+                .createIceServer();
+
+        iceServers.add(var21);
+        iceServers.add(var22);
+        iceServers.add(var23);
     }
 
     /**
