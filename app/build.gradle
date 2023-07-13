@@ -94,7 +94,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     implementation project(path: ':libengine')
-    implementation 'org.java-websocket:Java-WebSocket:1.4.0'
+    implementation 'org.java-websocket:Java-WebSocket:1.5.2'
     implementation 'com.alibaba:fastjson:1.2.83'
 
     //强大的弹窗库
