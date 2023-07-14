@@ -83,22 +83,8 @@ def static getPlatform() {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
-    // navigation
-    implementation 'androidx.navigation:navigation-fragment:2.3.0'
-    implementation 'androidx.navigation:navigation-ui:2.3.0'
-
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
 
     implementation project(path: ':libengine')
     implementation 'org.java-websocket:Java-WebSocket:1.5.2'
     implementation 'com.alibaba:fastjson:1.2.83'
-
-    //强大的弹窗库
-    implementation 'com.lxj:xpopup:2.2.0'
-    //通知提示弹出库
-    api 'com.tapadoo.android:alerter:7.0.0'
 }

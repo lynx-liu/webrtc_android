@@ -13,14 +13,13 @@ import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import com.android.permission.Permissions;
 import com.webrtc.session.CallSession;
 import com.webrtc.session.EnumType;
 import com.webrtc.engine.AVEngineKit;
 import com.android.webrtc.R;
 
-public class CallMultiActivity extends AppCompatActivity implements View.OnClickListener {
+public class CallMultiActivity extends Activity implements View.OnClickListener {
     private AVEngineKit gEngineKit;
     private ImageView meetingHangupImageView;
     protected Chronometer durationTextView;
