@@ -1,12 +1,7 @@
 package com.webrtc.engine;
 
 import android.util.Log;
-import android.view.View;
-
 import com.webrtc.session.EnumType;
-
-import org.webrtc.RendererCommon;
-
 import java.util.List;
 
 public class AVEngine implements IEngine {
@@ -54,14 +49,6 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public void userReject(String userId, int type) {
-        if (iEngine == null) {
-            return;
-        }
-        iEngine.userReject(userId, type);
-    }
-
-    @Override
     public void disconnected(String userId, EnumType.CallEndReason reason) {
         if (iEngine == null) {
             return;
@@ -103,22 +90,6 @@ public class AVEngine implements IEngine {
     }
 
     @Override
-    public View setupLocalPreview(boolean isOverlay) {
-        if (iEngine == null) {
-            return null;
-        }
-        return iEngine.setupLocalPreview(isOverlay);
-    }
-
-    @Override
-    public void stopPreview() {
-        if (iEngine == null) {
-            return;
-        }
-        iEngine.stopPreview();
-    }
-
-    @Override
     public void startStream() {
         if (iEngine == null) {
             return;
@@ -132,37 +103,6 @@ public class AVEngine implements IEngine {
             return;
         }
         iEngine.stopStream();
-    }
-
-    @Override
-    public View setupRemoteVideo(String userId, boolean isO, RendererCommon.RendererEvents rendererEvents) {
-        if (iEngine == null) {
-            return null;
-        }
-        return iEngine.setupRemoteVideo(userId, isO, rendererEvents);
-    }
-
-    @Override
-    public void stopRemoteVideo() {
-        if (iEngine == null) {
-            return;
-        }
-        iEngine.stopRemoteVideo();
-    }
-
-    @Override
-    public void switchLocalVideoEnable() {
-        if(iEngine == null)
-            return;
-        iEngine.switchLocalVideoEnable();
-    }
-
-    @Override
-    public void switchCamera() {
-        if (iEngine == null) {
-            return;
-        }
-        iEngine.switchCamera();
     }
 
     @Override

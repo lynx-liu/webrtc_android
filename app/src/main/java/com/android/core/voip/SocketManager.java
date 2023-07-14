@@ -1,7 +1,5 @@
 package com.android.core.voip;
 
-import android.content.ComponentName;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -10,7 +8,6 @@ import com.webrtc.socket.ISocketEvent;
 import com.webrtc.socket.IUserState;
 import com.webrtc.socket.MyWebSocket;
 import com.android.App;
-import com.android.VoipReceiver;
 import com.webrtc.session.CallSession;
 import com.webrtc.session.EnumType;
 import com.webrtc.engine.AVEngineKit;
@@ -108,27 +105,15 @@ public class SocketManager implements ISocketEvent {
         }
     }
 
-    public void sendInvite(String room, List<String> users, boolean audioOnly) {
+    public void sendInvite(String room, List<String> users) {
         if (webSocket != null) {
-            webSocket.sendInvite(room, myId, users, audioOnly);
+            webSocket.sendInvite(room, myId, users);
         }
     }
 
     public void sendLeave(String room, String userId) {
         if (webSocket != null) {
             webSocket.sendLeave(myId, room, userId);
-        }
-    }
-
-    public void sendRingBack(String targetId, String room) {
-        if (webSocket != null) {
-            webSocket.sendRing(myId, targetId, room);
-        }
-    }
-
-    public void sendRefuse(String room, String inviteId, int refuseType) {
-        if (webSocket != null) {
-            webSocket.sendRefuse(room, inviteId, myId, refuseType);
         }
     }
 
@@ -162,50 +147,10 @@ public class SocketManager implements ISocketEvent {
         }
     }
 
-    public void sendTransAudio(String userId) {
-        if (webSocket != null) {
-            webSocket.sendTransAudio(myId, userId);
-        }
-    }
-
     public void sendDisconnect(String room, String userId) {
         if (webSocket != null) {
             webSocket.sendDisconnect(room, myId, userId);
         }
-    }
-
-    // ========================================================================================
-    @Override
-    public void onInvite(String room, boolean audioOnly, String inviteId, String userList) {
-        Intent intent = new Intent();
-        intent.putExtra("room", room);
-        intent.putExtra("audioOnly", audioOnly);
-        intent.putExtra("inviteId", inviteId);
-        intent.putExtra("userList", userList);
-        intent.setAction(VoipReceiver.ACTION_VOIP_RECEIVER);
-        intent.setComponent(new ComponentName(App.getInstance().getPackageName(), VoipReceiver.class.getName()));
-        // 发送广播
-        App.getInstance().sendBroadcast(intent);
-    }
-
-    @Override
-    public void onCancel(String inviteId) {
-        handler.post(() -> {
-            CallSession currentSession = gEngineKit.getCurrentSession();
-            if (currentSession != null) {
-                currentSession.onCancel(inviteId);
-            }
-        });
-    }
-
-    @Override
-    public void onRing(String fromId) {
-        handler.post(() -> {
-            CallSession currentSession = gEngineKit.getCurrentSession();
-            if (currentSession != null) {
-                currentSession.onRingBack(fromId);
-            }
-        });
     }
 
     @Override  // 加入房间
@@ -225,16 +170,6 @@ public class SocketManager implements ISocketEvent {
             CallSession currentSession = gEngineKit.getCurrentSession();
             if (currentSession != null) {
                 currentSession.newPeer(userId);
-            }
-        });
-    }
-
-    @Override
-    public void onReject(String userId, int type) {
-        handler.post(() -> {
-            CallSession currentSession = gEngineKit.getCurrentSession();
-            if (currentSession != null) {
-                currentSession.onRefuse(userId, type);
             }
         });
     }
@@ -286,16 +221,6 @@ public class SocketManager implements ISocketEvent {
         if (iUserState != null && iUserState.get() != null) {
             iUserState.get().userLogout();
         }
-    }
-
-    @Override
-    public void onTransAudio(String userId) {
-        handler.post(() -> {
-            CallSession currentSession = gEngineKit.getCurrentSession();
-            if (currentSession != null) {
-                currentSession.onTransAudio(userId);
-            }
-        });
     }
 
     @Override

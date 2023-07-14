@@ -2,9 +2,6 @@ package com.webrtc.net;
 
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -121,29 +118,6 @@ public class UrlConnUtils {
             return false;
         }
         return false;
-    }
-
-    /**
-     * 构建json参数
-     */
-    public static String builderJsonParams(Map<String, Object> params) {
-        JSONObject jsonObject;
-        try {
-            Set<String> keySet = params.keySet();
-            List<String> keyList = new ArrayList<>(keySet);
-            Collections.sort(keyList);
-            jsonObject = new JSONObject();
-            for (String key : keyList) {
-                Object value = params.get(key);
-                if (value == null || "".equals(value)) {
-                    continue;
-                }
-                jsonObject.put(key, String.valueOf(params.get(key)));
-            }
-        } catch (JSONException e) {
-            return null;
-        }
-        return jsonObject.toString();
     }
 
     /**

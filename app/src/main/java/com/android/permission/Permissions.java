@@ -22,30 +22,7 @@ import java.util.List;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Build.VERSION_CODES.M;
 
-/**
- * Permission-related helpers
- */
 public class Permissions {
-    /**
-     * @param callback will be called if request is not canceled, with either
-     *                 {@link PackageManager#PERMISSION_GRANTED} or {@link PackageManager#PERMISSION_DENIED}
-     */
-    public static void request(Activity activity, String permission, Consumer<Integer> callback) {
-        if (Build.VERSION.SDK_INT >= M) {
-            request2(activity, permission, callback);
-        } else {
-            if (has(activity, permission)) {
-                callback.accept(0);
-            } else {
-                callback.accept(-1);
-            }
-        }
-    }
-
-    /**
-     * @param callback will be called if request is not canceled, with either
-     *                 {@link PackageManager#PERMISSION_GRANTED} or {@link PackageManager#PERMISSION_DENIED}
-     */
     public static void request(Activity activity, String[] permissions, Consumer<Integer> callback) {
         if (Build.VERSION.SDK_INT >= M) {
             request2(activity, permissions, callback);

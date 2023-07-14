@@ -9,8 +9,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.alibaba.fastjson.JSON;
-import com.android.core.base.BaseActivity;
 import com.android.core.ui.room.RoomInfo;
 import com.android.permission.Permissions;
 import com.webrtc.net.ICallback;
@@ -22,7 +23,7 @@ import com.android.webrtc.R;
 
 import java.util.List;
 
-public class LoginActivity extends BaseActivity implements IUserState {
+public class LoginActivity extends AppCompatActivity implements IUserState {
     private EditText etRoom;
 
     @Override
@@ -87,7 +88,7 @@ public class LoginActivity extends BaseActivity implements IUserState {
             boolean isOutgoing = true;
             String roomid = App.getInstance().getRoomId();
             for(RoomInfo roomInfo:roomInfos) {
-                if(roomInfo.getRoomId().equals(roomid)) {
+                if(roomInfo.roomId.equals(roomid)) {
                     isOutgoing = false;
                 }
             }

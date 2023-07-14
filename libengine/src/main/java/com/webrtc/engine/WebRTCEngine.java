@@ -1,43 +1,21 @@
 package com.webrtc.engine;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
-import android.media.projection.MediaProjection;
 import android.os.Build;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 
 import com.webrtc.session.EnumType;
-import com.webrtc.render.ProxyVideoSink;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
-import org.webrtc.Camera1Enumerator;
-import org.webrtc.Camera2Enumerator;
-import org.webrtc.CameraEnumerator;
-import org.webrtc.CameraVideoCapturer;
-import org.webrtc.DefaultVideoDecoderFactory;
-import org.webrtc.DefaultVideoEncoderFactory;
-import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
-import org.webrtc.RendererCommon;
-import org.webrtc.ScreenCapturerAndroid;
 import org.webrtc.SessionDescription;
-import org.webrtc.SurfaceTextureHelper;
-import org.webrtc.SurfaceViewRenderer;
-import org.webrtc.VideoCapturer;
-import org.webrtc.VideoDecoderFactory;
-import org.webrtc.VideoEncoderFactory;
-import org.webrtc.VideoSource;
-import org.webrtc.VideoTrack;
 import org.webrtc.audio.AudioDeviceModule;
 import org.webrtc.audio.JavaAudioDeviceModule;
 
@@ -49,20 +27,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private static final String TAG = "WebRTCEngine";
     private PeerConnectionFactory _factory;
-    private EglBase mRootEglBase;
     private MediaStream _localStream;
-    private VideoSource videoSource;
     private AudioSource audioSource;
     private AudioTrack _localAudioTrack;
-    private VideoCapturer videoCapturer;
-    private SurfaceTextureHelper surfaceTextureHelper;
-    private SurfaceViewRenderer localRenderer;
-
-    private static final String VIDEO_TRACK_ID = "StreamV0";
     private static final String AUDIO_TRACK_ID = "StreamA0";
-    private static final int VIDEO_RESOLUTION_WIDTH = 1280;
-    private static final int VIDEO_RESOLUTION_HEIGHT = 720;
-    private static final int FPS = 25;
 
     // 对话实例列表
     private ConcurrentHashMap<String, Peer> peers = new ConcurrentHashMap<>();
@@ -71,13 +39,11 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
 
     private EngineCallback mCallback;
 
-    public boolean mIsAudioOnly;
     private Context mContext;
     private AudioManager audioManager;
     private boolean isSpeakerOn = true;
 
-    public WebRTCEngine(boolean mIsAudioOnly, Context mContext) {
-        this.mIsAudioOnly = mIsAudioOnly;
+    public WebRTCEngine(Context mContext) {
         this.mContext = mContext;
         audioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         // 初始化ice地址
@@ -90,9 +56,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     public void init(EngineCallback callback) {
         mCallback = callback;
 
-        if (mRootEglBase == null) {
-            mRootEglBase = EglBase.create();
-        }
         if (_factory == null) {
             _factory = createConnectionFactory();
         }
@@ -119,23 +82,8 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         if (isHeadphonesPlugged()) {
             toggleHeadset(true);
         } else {
-            if (mIsAudioOnly)
-                toggleSpeaker(false);
-            else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-                } else {
-                    audioManager.setMode(AudioManager.MODE_IN_CALL);
-                }
-            }
+            toggleSpeaker(false);
         }
-    }
-
-    public boolean sendData(byte[] data) {
-        for (Peer peer : peers.values()) {
-            peer.sendData(data);
-        }
-        return true;
     }
 
     @Override
@@ -149,13 +97,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         peers.put(userId, peer);
         // createOffer
         peer.createOffer();
-    }
-
-    @Override
-    public void userReject(String userId, int type) {
-        if (mCallback != null) {
-            mCallback.reject(type);
-        }
     }
 
     @Override
@@ -216,61 +157,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     }
 
     @Override
-    public View setupLocalPreview(boolean isOverlay) {
-        if (mRootEglBase == null) {
-            return null;
-        }
-        localRenderer = new SurfaceViewRenderer(mContext);
-        localRenderer.init(mRootEglBase.getEglBaseContext(), null);
-        localRenderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FIT);
-        localRenderer.setMirror(true);
-        localRenderer.setZOrderMediaOverlay(isOverlay);
-
-        ProxyVideoSink localSink = new ProxyVideoSink();
-        localSink.setTarget(localRenderer);
-        if (_localStream.videoTracks.size() > 0) {
-            _localStream.videoTracks.get(0).addSink(localSink);
-        }
-        return localRenderer;
-    }
-
-    @Override
-    public void stopPreview() {
-        if (audioSource != null) {
-            audioSource.dispose();
-            audioSource = null;
-        }
-        // 释放摄像头
-        if (videoCapturer != null) {
-            try {
-                videoCapturer.stopCapture();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            videoCapturer.dispose();
-            videoCapturer = null;
-        }
-        // 释放画布
-        if (surfaceTextureHelper != null) {
-            surfaceTextureHelper.dispose();
-            surfaceTextureHelper = null;
-        }
-
-        if (videoSource != null) {
-            videoSource.dispose();
-            videoSource = null;
-        }
-        if (_localStream != null) {
-            _localStream.dispose();
-            _localStream = null;
-        }
-        if (localRenderer != null) {
-            localRenderer.release();
-            localRenderer = null;
-        }
-    }
-
-    @Override
     public void startStream() {
 
     }
@@ -278,63 +164,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     @Override
     public void stopStream() {
 
-    }
-
-    @Override
-    public View setupRemoteVideo(String userId, boolean isOverlay, RendererCommon.RendererEvents rendererEvents) {
-        if (TextUtils.isEmpty(userId)) {
-            Log.e(TAG, "setupRemoteVideo userId is null ");
-            return null;
-        }
-        Peer peer = peers.get(userId);
-        if (peer == null) return null;
-
-        if (peer.renderer == null) {
-            peer.createRender(mRootEglBase, mContext, isOverlay, rendererEvents);
-        }
-
-        return peer.renderer;
-    }
-
-    @Override
-    public void stopRemoteVideo() {
-
-    }
-
-    @Override
-    public void switchLocalVideoEnable() {
-        if (_localStream.videoTracks.size() > 0) {
-            _localStream.videoTracks.get(0).setEnabled(!_localStream.videoTracks.get(0).enabled());
-        }
-    }
-
-    private boolean isSwitch = false; // 是否正在切换摄像头
-
-    @Override
-    public void switchCamera() {
-        if (isSwitch) return;
-        isSwitch = true;
-        if (videoCapturer == null) return;
-        if (videoCapturer instanceof CameraVideoCapturer) {
-            CameraVideoCapturer cameraVideoCapturer = (CameraVideoCapturer) videoCapturer;
-            try {
-                cameraVideoCapturer.switchCamera(new CameraVideoCapturer.CameraSwitchHandler() {
-                    @Override
-                    public void onCameraSwitchDone(boolean isFrontCamera) {
-                        isSwitch = false;
-                    }
-
-                    @Override
-                    public void onCameraSwitchError(String errorDescription) {
-                        isSwitch = false;
-                    }
-                });
-            } catch (Exception e) {
-                isSwitch = false;
-            }
-        } else {
-            Log.d(TAG, "Will not switch camera, video caputurer is not a camera");
-        }
     }
 
     @Override
@@ -393,9 +222,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
                 }
                 audioManager.setSpeakerphoneOn(false);
             } else {
-                if (mIsAudioOnly) {
-                    toggleSpeaker(isSpeakerOn);
-                }
+                toggleSpeaker(isSpeakerOn);
             }
         }
         return false;
@@ -432,18 +259,19 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             peers.clear();
         }
 
+        if (audioSource != null) {
+            audioSource.dispose();
+            audioSource = null;
+        }
 
-        // 停止预览
-        stopPreview();
+        if (_localStream != null) {
+            _localStream.dispose();
+            _localStream = null;
+        }
 
         if (_factory != null) {
             _factory.dispose();
             _factory = null;
-        }
-
-        if (mRootEglBase != null) {
-            mRootEglBase.release();
-            mRootEglBase = null;
         }
     }
 
@@ -471,28 +299,12 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         iceServers.add(iceServer3);
     }
 
-    /**
-     * 构造PeerConnectionFactory
-     *
-     * @return PeerConnectionFactory
-     */
     public PeerConnectionFactory createConnectionFactory() {
-
         // 1. 初始化的方法，必须在开始之前调用
         PeerConnectionFactory.initialize(PeerConnectionFactory
                 .InitializationOptions
                 .builder(mContext)
                 .createInitializationOptions());
-
-        // 2. 设置编解码方式：默认方法
-        final VideoEncoderFactory encoderFactory;
-        final VideoDecoderFactory decoderFactory;
-
-        encoderFactory = new DefaultVideoEncoderFactory(
-                mRootEglBase.getEglBaseContext(),
-                true,
-                true);
-        decoderFactory = new DefaultVideoDecoderFactory(mRootEglBase.getEglBaseContext());
 
         // 构造Factory
         AudioDeviceModule audioDeviceModule = JavaAudioDeviceModule.builder(mContext).createAudioDeviceModule();
@@ -500,8 +312,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         return PeerConnectionFactory.builder()
                 .setOptions(options)
                 .setAudioDeviceModule(audioDeviceModule)
-                .setVideoEncoderFactory(encoderFactory)
-                .setVideoDecoderFactory(decoderFactory)
                 .createPeerConnectionFactory();
     }
 
@@ -514,64 +324,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         audioSource = _factory.createAudioSource(createAudioConstraints());
         _localAudioTrack = _factory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
         _localStream.addTrack(_localAudioTrack);
-
-        // 视频
-        if (!mIsAudioOnly) {
-            videoCapturer = createVideoCapture();
-            surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", mRootEglBase.getEglBaseContext());
-            videoSource = _factory.createVideoSource(videoCapturer.isScreencast());
-
-            videoCapturer.initialize(surfaceTextureHelper, mContext, videoSource.getCapturerObserver());
-            videoCapturer.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS);
-
-            VideoTrack _localVideoTrack = _factory.createVideoTrack(VIDEO_TRACK_ID, videoSource);
-            _localStream.addTrack(_localVideoTrack);
-        }
-    }
-
-    /**
-     * 创建媒体方式
-     *
-     * @return VideoCapturer
-     */
-    private VideoCapturer createVideoCapture() {
-        VideoCapturer videoCapturer;
-        if (Camera2Enumerator.isSupported(mContext)) {
-            videoCapturer = createCameraCapture(new Camera2Enumerator(mContext));
-        } else {
-            videoCapturer = createCameraCapture(new Camera1Enumerator(true));
-        }
-        return videoCapturer;
-    }
-
-    /**
-     * 创建相机媒体流
-     */
-    private VideoCapturer createCameraCapture(CameraEnumerator enumerator) {
-        final String[] deviceNames = enumerator.getDeviceNames();
-
-        // First, try to find front facing camera
-        for (String deviceName : deviceNames) {
-            if (enumerator.isFrontFacing(deviceName)) {
-                VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
-
-                if (videoCapturer != null) {
-                    return videoCapturer;
-                }
-            }
-        }
-
-        // Front facing camera not found, try something else
-        for (String deviceName : deviceNames) {
-            if (!enumerator.isFrontFacing(deviceName)) {
-                VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
-
-                if (videoCapturer != null) {
-                    return videoCapturer;
-                }
-            }
-        }
-        return null;
     }
 
     //**************************************各种约束******************************************/
@@ -638,5 +390,4 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
            Log.d(TAG, "onDisconnected mCallback == null");
         }
     }
-
 }

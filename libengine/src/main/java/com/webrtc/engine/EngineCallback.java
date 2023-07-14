@@ -6,21 +6,9 @@ import org.webrtc.IceCandidate;
 import org.webrtc.SessionDescription;
 
 public interface EngineCallback {
-    /**
-     * 加入房间成功
-     */
     void joinRoomSucc();
 
-    /**
-     * 退出房间成功
-     */
     void exitRoom();
-
-    /**
-     * 拒绝连接
-     * @param type type
-     */
-    void reject(int type);
 
     void disconnected(EnumType.CallEndReason reason);
 

@@ -81,21 +81,6 @@ public class MyWebSocket extends WebSocketClient {
             handleLogin(map);
             return;
         }
-        // 被邀请
-        if (eventName.equals("__invite")) {
-            handleInvite(map);
-            return;
-        }
-        // 取消拨出
-        if (eventName.equals("__cancel")) {
-            handleCancel(map);
-            return;
-        }
-        // 响铃
-        if (eventName.equals("__ring")) {
-            handleRing(map);
-            return;
-        }
         // 进入房间
         if (eventName.equals("__peers")) {
             handlePeers(map);
@@ -104,11 +89,6 @@ public class MyWebSocket extends WebSocketClient {
         // 新人入房间
         if (eventName.equals("__new_peer")) {
             handleNewPeer(map);
-            return;
-        }
-        // 拒绝接听
-        if (eventName.equals("__reject")) {
-            handleReject(map);
             return;
         }
         // offer
@@ -129,10 +109,6 @@ public class MyWebSocket extends WebSocketClient {
         if (eventName.equals("__leave")) {
             handleLeave(map);
         }
-        // 切换到语音
-        if (eventName.equals("__audio")) {
-            handleTransAudio(map);
-        }
         // 意外断开
         if (eventName.equals("__disconnect")) {
             handleDisConnect(map);
@@ -144,14 +120,6 @@ public class MyWebSocket extends WebSocketClient {
         if (data != null) {
             String fromId = (String) data.get("fromID");
             this.socketEvent.onDisConnect(fromId);
-        }
-    }
-
-    private void handleTransAudio(JSONObject map) throws JSONException {
-        JSONObject data = new JSONObject(map.getString("data"));
-        if (data != null) {
-            String fromId = (String) data.get("fromID");
-            this.socketEvent.onTransAudio(fromId);
         }
     }
 
@@ -193,15 +161,6 @@ public class MyWebSocket extends WebSocketClient {
         }
     }
 
-    private void handleReject(JSONObject map) throws JSONException {
-        JSONObject data = new JSONObject(map.getString("data"));
-        if (data != null) {
-            String fromID = (String) data.get("fromID");
-            int rejectType = Integer.parseInt(String.valueOf(data.get("refuseType")));
-            this.socketEvent.onReject(fromID, rejectType);
-        }
-    }
-
     private void handlePeers(JSONObject map) throws JSONException {
         JSONObject data = new JSONObject(map.getString("data"));
         if (data != null) {
@@ -217,34 +176,6 @@ public class MyWebSocket extends WebSocketClient {
         if (data != null) {
             String userID = (String) data.get("userID");
             this.socketEvent.onNewPeer(userID);
-        }
-    }
-
-    private void handleRing(JSONObject map) throws JSONException {
-        JSONObject data = new JSONObject(map.getString("data"));
-        if (data != null) {
-            String fromId = (String) data.get("fromID");
-            this.socketEvent.onRing(fromId);
-        }
-    }
-
-    private void handleCancel(JSONObject map) throws JSONException {
-        JSONObject data = new JSONObject(map.getString("data"));
-        if (data != null) {
-            String inviteID = (String) data.get("inviteID");
-            String userList = (String) data.get("userList");
-            this.socketEvent.onCancel(inviteID);
-        }
-    }
-
-    private void handleInvite(JSONObject map) throws JSONException {
-        JSONObject data = new JSONObject(map.getString("data"));
-        if (data != null) {
-            String room = (String) data.get("room");
-            boolean audioOnly = (boolean) data.get("audioOnly");
-            String inviteID = (String) data.get("inviteID");
-            String userList = (String) data.get("userList");
-            this.socketEvent.onInvite(room, audioOnly, inviteID, userList);
         }
     }
 
@@ -276,13 +207,13 @@ public class MyWebSocket extends WebSocketClient {
     }
 
     // 发送邀请
-    public void sendInvite(String room, String myId, List<String> users, boolean audioOnly) {
+    public void sendInvite(String room, String myId, List<String> users) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__invite");
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("room", room);
-        childMap.put("audioOnly", audioOnly);
+        childMap.put("audioOnly", true);
         childMap.put("inviteID", myId);
 
         String join = listToString(users);
@@ -329,23 +260,6 @@ public class MyWebSocket extends WebSocketClient {
         } else return "";
     }
 
-    // 发送响铃通知
-    public void sendRing(String myId, String toId, String room) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("eventName", "__ring");
-
-        Map<String, Object> childMap = new HashMap<>();
-        childMap.put("fromID", myId);
-        childMap.put("toID", toId);
-        childMap.put("room", room);
-
-        map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
-        final String jsonString = object.toString();
-        Log.d(TAG, "send-->" + jsonString);
-        send(jsonString);
-    }
-
     //加入房间
     public void sendJoin(String room, String myId) {
         Map<String, Object> map = new HashMap<>();
@@ -355,24 +269,6 @@ public class MyWebSocket extends WebSocketClient {
         childMap.put("room", room);
         childMap.put("userID", myId);
 
-
-        map.put("data", childMap);
-        JSONObject object = new JSONObject(map);
-        final String jsonString = object.toString();
-        Log.d(TAG, "send-->" + jsonString);
-        send(jsonString);
-    }
-
-    // 拒接接听
-    public void sendRefuse(String room, String inviteID, String myId, int refuseType) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("eventName", "__reject");
-
-        Map<String, Object> childMap = new HashMap<>();
-        childMap.put("room", room);
-        childMap.put("toID", inviteID);
-        childMap.put("fromID", myId);
-        childMap.put("refuseType", String.valueOf(refuseType));
 
         map.put("data", childMap);
         JSONObject object = new JSONObject(map);
@@ -449,20 +345,6 @@ public class MyWebSocket extends WebSocketClient {
         if (isOpen()) {
             send(jsonString);
         }
-    }
-
-    // 切换到语音
-    public void sendTransAudio(String myId, String userId) {
-        Map<String, Object> map = new HashMap<>();
-        Map<String, Object> childMap = new HashMap<>();
-        childMap.put("fromID", myId);
-        childMap.put("userID", userId);
-        map.put("data", childMap);
-        map.put("eventName", "__audio");
-        JSONObject object = new JSONObject(map);
-        final String jsonString = object.toString();
-        Log.d(TAG, "send-->" + jsonString);
-        send(jsonString);
     }
 
     // 断开重连

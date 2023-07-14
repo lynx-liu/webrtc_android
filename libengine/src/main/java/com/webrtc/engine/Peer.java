@@ -1,26 +1,17 @@
 package com.webrtc.engine;
 
-import android.content.Context;
-import android.graphics.Point;
 import android.util.Log;
-import android.view.MotionEvent;
-
-import com.webrtc.render.ProxyVideoSink;
 
 import org.webrtc.DataChannel;
-import org.webrtc.EglBase;
 import org.webrtc.IceCandidate;
 import org.webrtc.MediaConstraints;
 import org.webrtc.MediaStream;
 import org.webrtc.PeerConnection;
 import org.webrtc.PeerConnectionFactory;
-import org.webrtc.RendererCommon;
 import org.webrtc.RtpReceiver;
 import org.webrtc.SdpObserver;
 import org.webrtc.SessionDescription;
-import org.webrtc.SurfaceViewRenderer;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,13 +25,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
     private final List<PeerConnection.IceServer> mIceLis;
     private final IPeerEvent mEvent;
     private boolean isOffer;
-    private final DataChannel controlChannel;
-    private ControlUtil controlUtil;
-    private Point screenSize;
-
     public MediaStream _remoteStream;
-    public SurfaceViewRenderer renderer;
-    public ProxyVideoSink sink;
 
     public Peer(PeerConnectionFactory factory, List<PeerConnection.IceServer> list, String userId, IPeerEvent event) {
         mFactory = factory;
@@ -48,10 +33,7 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         mEvent = event;
         mUserId = userId;
         queuedRemoteCandidates = new ArrayList<>();
-        this.pc = createPeerConnection();
-
-        controlChannel = pc.createDataChannel("ControlChannel", new DataChannel.Init());
-        Log.d("llx", "create Peer:" + mUserId);
+        pc = createPeerConnection();
     }
 
     public PeerConnection createPeerConnection() {
@@ -61,12 +43,6 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         } else {
             return null;
         }
-    }
-
-    public boolean sendData(byte[] data) {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
-        DataChannel.Buffer buffer = new DataChannel.Buffer(byteBuffer, true);
-        return controlChannel.send(buffer);
     }
 
     public void setOffer(boolean isOffer) {
@@ -118,29 +94,8 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         }
     }
 
-    public void createRender(EglBase mRootEglBase, Context context, boolean isOverlay, RendererCommon.RendererEvents rendererEvents) {
-        controlUtil = new ControlUtil(context);
-        screenSize = controlUtil.getScreenSize();
-        renderer = new SurfaceViewRenderer(context);
-        renderer.init(mRootEglBase.getEglBaseContext(), rendererEvents);
-        renderer.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
-        renderer.setMirror(false);
-        renderer.setZOrderMediaOverlay(isOverlay);
-        sink = new ProxyVideoSink();
-        sink.setTarget(renderer);
-        if (_remoteStream != null && _remoteStream.videoTracks.size() > 0) {
-            _remoteStream.videoTracks.get(0).addSink(sink);
-        }
-    }
-
     // 关闭Peer
     public void close() {
-        if (renderer != null) {
-            renderer.release();
-        }
-        if (sink != null) {
-            sink.setTarget(null);
-        }
         if (pc != null) {
             try {
                 pc.close();
@@ -215,31 +170,10 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
 
             @Override
             public void onStateChange() {
-                DataChannel.State state = controlChannel.state();
             }
 
             @Override
             public void onMessage(DataChannel.Buffer buffer) {
-                ByteBuffer data = buffer.data;
-                byte[] byteArray = new byte[data.remaining()];
-                data.get(byteArray);
-                // 处理接收到的数据
-                String receivedData = bytesToHexString(byteArray);
-                Log.d("llx", "rev: " + receivedData);
-                if(controlUtil==null) return;
-
-                int action = byteArray[0];
-                int x = ((((byteArray[1]&0xFF)<<24)|((byteArray[2]&0xFF)<<16)|((byteArray[3]&0xFF)<<8)|(byteArray[4]&0xFF))*screenSize.x)>>16;
-                int y = ((((byteArray[5]&0xFF)<<24)|((byteArray[6]&0xFF)<<16)|((byteArray[7]&0xFF)<<8)|(byteArray[8]&0xFF))*screenSize.y)>>16;
-                switch (action) {
-                    case MotionEvent.ACTION_CANCEL:
-                        action = MotionEvent.ACTION_UP;
-                    case MotionEvent.ACTION_DOWN:
-                    case MotionEvent.ACTION_MOVE:
-                    case MotionEvent.ACTION_UP:
-                        controlUtil.injectTouch(action,0, new Point(x,y),1.0f,0);
-                        break;
-                }
             }
         });
     }
@@ -334,7 +268,6 @@ public class Peer implements SdpObserver, PeerConnection.Observer {
         MediaConstraints mediaConstraints = new MediaConstraints();
         ArrayList<MediaConstraints.KeyValuePair> keyValuePairs = new ArrayList<>();
         keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
-        keyValuePairs.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
         mediaConstraints.mandatory.addAll(keyValuePairs);
         return mediaConstraints;
     }

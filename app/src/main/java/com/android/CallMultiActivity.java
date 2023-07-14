@@ -6,8 +6,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.SystemClock;
 import android.view.View;
 import android.view.WindowManager;
@@ -15,23 +13,15 @@ import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
-import com.android.core.base.BaseActivity;
-import com.android.core.voip.FragmentMeeting;
+import androidx.appcompat.app.AppCompatActivity;
 import com.android.permission.Permissions;
 import com.webrtc.session.CallSession;
 import com.webrtc.session.EnumType;
 import com.webrtc.engine.AVEngineKit;
 import com.android.webrtc.R;
 
-/**
- * 多人通话界面
- */
-public class CallMultiActivity extends BaseActivity implements CallSession.CallSessionCallback, View.OnClickListener {
+public class CallMultiActivity extends AppCompatActivity implements View.OnClickListener {
     private AVEngineKit gEngineKit;
-    private final Handler handler = new Handler(Looper.getMainLooper());
     private ImageView meetingHangupImageView;
     protected Chronometer durationTextView;
     protected TextView nameTextView;
@@ -39,7 +29,6 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
     private boolean micEnabled = false;
     private boolean isSpeakerOn = false;
     private ImageView speakerImageView;
-    private CallSession.CallSessionCallback currentFragment;
     public static final String EXTRA_MO = "isOutGoing";
 
     public static void openActivity(Activity activity, String room, boolean isOutgoing) {
@@ -71,11 +60,6 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
 
         meetingHangupImageView = findViewById(R.id.meetingHangupImageView);
         meetingHangupImageView.setOnClickListener(this);
-
-        Fragment fragment = new FragmentMeeting();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().add(R.id.meeting_container, fragment).commit();
-        currentFragment = (CallSession.CallSessionCallback) fragment;
 
         gEngineKit = App.getInstance().getAvEngineKit();
 
@@ -115,13 +99,6 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
             // 加入房间
             gEngineKit.joinRoom(getApplicationContext(), room);
         }
-
-        CallSession session = gEngineKit.getCurrentSession();
-        if (session == null) {
-            this.finish();
-        } else {
-            session.setSessionCallback(this);
-        }
     }
 
     @TargetApi(19)
@@ -131,47 +108,6 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
             flags |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
         return flags;
-    }
-
-    //-------------------------------------------------回调相关------------------------------------
-    @Override
-    public void didCallEndWithReason(EnumType.CallEndReason var1) {
-        finish();
-    }
-
-    @Override
-    public void didChangeState(EnumType.CallState callState) {
-        handler.post(() -> currentFragment.didChangeState(callState));
-    }
-
-    @Override
-    public void didChangeMode(boolean var1) {
-        handler.post(() -> currentFragment.didChangeMode(var1));
-    }
-
-    @Override
-    public void didCreateLocalVideoTrack() {
-        handler.post(() -> currentFragment.didCreateLocalVideoTrack());
-    }
-
-    @Override
-    public void didReceiveRemoteVideoTrack(String userId) {
-        handler.post(() -> currentFragment.didReceiveRemoteVideoTrack(userId));
-    }
-
-    @Override
-    public void didUserLeave(String userId) {
-        handler.post(() -> currentFragment.didUserLeave(userId));
-    }
-
-    @Override
-    public void didError(String var1) {
-        finish();
-    }
-
-    @Override
-    public void didDisconnected(String userId) {
-
     }
 
     @Override
