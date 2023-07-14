@@ -1,21 +1,17 @@
 package com.android;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.android.core.base.BaseActivity;
-import com.webrtc.engine.WebRTCEngine;
 import com.webrtc.socket.IUserState;
 import com.android.core.voip.SocketManager;
 import com.android.webrtc.R;
@@ -23,7 +19,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends BaseActivity implements IUserState {
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_MEDIA_PROJECTION = 0;
     boolean isFromCall;
 
     @Override
@@ -46,19 +41,6 @@ public class MainActivity extends BaseActivity implements IUserState {
         if (isFromCall) { //无权限，来电申请权限会走这里
             initCall();
         }
-
-        if(WebRTCEngine.needRequestMediaProjectionPermission()) {//申请录屏权限
-            MediaProjectionManager mediaProjectionManager = (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-            if (mediaProjectionManager != null) {
-                startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        WebRTCEngine.mediaProjectionPermissionResultData = data;
     }
 
     @Override

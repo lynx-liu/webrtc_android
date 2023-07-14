@@ -57,8 +57,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
     private VideoCapturer videoCapturer;
     private SurfaceTextureHelper surfaceTextureHelper;
     private SurfaceViewRenderer localRenderer;
-    // 是否使用录屏
-    private static final boolean screencaptureEnabled = Build.DEVICE.equals("generic_x86_64") || Build.DEVICE.equals("kona");
 
     private static final String VIDEO_TRACK_ID = "StreamV0";
     private static final String AUDIO_TRACK_ID = "StreamA0";
@@ -456,19 +454,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         PeerConnection.IceServer iceServer0 = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
                 .createIceServer();
         iceServers.add(iceServer0);
-/*
-        PeerConnection.IceServer iceServer1 = PeerConnection.IceServer.builder("stun:42.192.40.58:3478?transport=udp")
-                .createIceServer();
-        PeerConnection.IceServer iceServer2 = PeerConnection.IceServer.builder("turn:42.192.40.58:3478?transport=udp")
-                .setUsername("ddssingsong")
-                .setPassword("123456")
-                .createIceServer();
-        PeerConnection.IceServer iceServer3 = PeerConnection.IceServer.builder("turn:42.192.40.58:3478?transport=tcp")
-                .setUsername("ddssingsong")
-                .setPassword("123456")
-                .createIceServer();
-*/
-/*
+
         PeerConnection.IceServer iceServer1 = PeerConnection.IceServer.builder("stun:154.221.16.209:3478?transport=udp")
                 .createIceServer();
         PeerConnection.IceServer iceServer2 = PeerConnection.IceServer.builder("turn:154.221.16.209:3478?transport=udp")
@@ -477,17 +463,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
                 .createIceServer();
         PeerConnection.IceServer iceServer3 = PeerConnection.IceServer.builder("turn:154.221.16.209:3478?transport=tcp")
                 .setUsername("test")
-                .setPassword("123456")
-                .createIceServer();
- */
-        PeerConnection.IceServer iceServer1 = PeerConnection.IceServer.builder("stun:120.46.147.229:3478?transport=udp")
-                .createIceServer();
-        PeerConnection.IceServer iceServer2 = PeerConnection.IceServer.builder("turn:120.46.147.229:3478?transport=udp")
-                .setUsername("ddssingsong")
-                .setPassword("123456")
-                .createIceServer();
-        PeerConnection.IceServer iceServer3 = PeerConnection.IceServer.builder("turn:120.46.147.229:3478?transport=tcp")
-                .setUsername("ddssingsong")
                 .setPassword("123456")
                 .createIceServer();
 
@@ -561,10 +536,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
      */
     private VideoCapturer createVideoCapture() {
         VideoCapturer videoCapturer;
-        if (screencaptureEnabled) {
-            return createScreenCapturer();
-        }
-
         if (Camera2Enumerator.isSupported(mContext)) {
             videoCapturer = createCameraCapture(new Camera2Enumerator(mContext));
         } else {
@@ -601,26 +572,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
             }
         }
         return null;
-    }
-
-
-    public static Intent mediaProjectionPermissionResultData;
-    public static boolean needRequestMediaProjectionPermission() {
-        return mediaProjectionPermissionResultData==null && screencaptureEnabled;
-    }
-
-    public static boolean isScreencaptureEnabled() {
-        return screencaptureEnabled;
-    }
-
-    @TargetApi(21)
-    private VideoCapturer createScreenCapturer() {
-        return new ScreenCapturerAndroid(mediaProjectionPermissionResultData, new MediaProjection.Callback() {
-            @Override
-            public void onStop() {
-                Log.e(TAG, "User revoked permission to capture the screen.");
-            }
-        });
     }
 
     //**************************************各种约束******************************************/

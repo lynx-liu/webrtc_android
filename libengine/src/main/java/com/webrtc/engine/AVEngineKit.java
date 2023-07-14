@@ -105,15 +105,9 @@ public class AVEngineKit {
             Log.e(TAG, "joinRoom error,currentCallSession is exist");
             return;
         }
-        mCurrentCallSession = new CallSession(context, room, false, iSessionEvent);
+        mCurrentCallSession = new CallSession(context, room, true, iSessionEvent);
         mCurrentCallSession.setIsComing(true);
         mCurrentCallSession.joinHome(room);
-    }
-
-    public boolean sendData(byte[] data) {
-        if(mCurrentCallSession==null)
-            return false;
-        return mCurrentCallSession.sendData(data);
     }
 
     public void createAndJoinRoom(Context context, String room) {
@@ -122,7 +116,7 @@ public class AVEngineKit {
             Log.e(TAG, "joinRoom error,currentCallSession is exist");
             return;
         }
-        mCurrentCallSession = new CallSession(context, room, false, iSessionEvent);
+        mCurrentCallSession = new CallSession(context, room, true, iSessionEvent);
         mCurrentCallSession.setIsComing(false);
         mCurrentCallSession.createHome(room, 9);
     }

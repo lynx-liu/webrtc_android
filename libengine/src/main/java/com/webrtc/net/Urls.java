@@ -1,9 +1,6 @@
 package com.webrtc.net;
 
 public class Urls {
-
-    //public final static String IP = "42.192.40.58:5000";
-    //public final static String IP = "120.46.147.229:8719";
     public final static String IP = "154.221.16.209:5000";
 
     private final static String HOST = "http://" + IP + "/";

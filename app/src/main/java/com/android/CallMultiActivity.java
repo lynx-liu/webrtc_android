@@ -8,9 +8,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Chronometer;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -23,8 +26,6 @@ import com.webrtc.session.EnumType;
 import com.webrtc.engine.AVEngineKit;
 import com.android.webrtc.R;
 
-import java.util.UUID;
-
 /**
  * 多人通话界面
  */
@@ -32,6 +33,12 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
     private AVEngineKit gEngineKit;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private ImageView meetingHangupImageView;
+    protected Chronometer durationTextView;
+    protected TextView nameTextView;
+    private ImageView muteImageView;
+    private boolean micEnabled = false;
+    private boolean isSpeakerOn = false;
+    private ImageView speakerImageView;
     private CallSession.CallSessionCallback currentFragment;
     public static final String EXTRA_MO = "isOutGoing";
 
@@ -52,6 +59,16 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
         getWindow().getDecorView().setSystemUiVisibility(getSystemUiVisibility());
         setContentView(R.layout.activity_multi_call);
 
+        durationTextView = findViewById(R.id.durationTextView);
+        durationTextView.setBase(SystemClock.elapsedRealtime());
+        durationTextView.start();
+
+        nameTextView = findViewById(R.id.nameTextView);
+        muteImageView = findViewById(R.id.muteImageView);
+        muteImageView.setOnClickListener(this);
+        speakerImageView = findViewById(R.id.speakerImageView);
+        speakerImageView.setOnClickListener(this);
+
         meetingHangupImageView = findViewById(R.id.meetingHangupImageView);
         meetingHangupImageView.setOnClickListener(this);
 
@@ -62,7 +79,7 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
 
         gEngineKit = App.getInstance().getAvEngineKit();
 
-        String[] permissions = new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA};
+        String[] permissions = new String[]{Manifest.permission.RECORD_AUDIO};
         Permissions.request(this, permissions, integer -> {
             if (integer == 0) {
                 // 权限同意
@@ -83,15 +100,17 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
 
     }
 
-    private void initView() {
-
+    @Override
+    protected void onDestroy() {
+        durationTextView.stop();
+        super.onDestroy();
     }
 
     private void init(String room, boolean isOutgoing) {
+        nameTextView.setText("频道号:"+room);
         if (isOutgoing) {
             // 创建一个房间并进入
-            gEngineKit.createAndJoinRoom(this,
-                    "room-" + UUID.randomUUID().toString().substring(0, 16));
+            gEngineKit.createAndJoinRoom(this, room);
         } else {
             // 加入房间
             gEngineKit.joinRoom(getApplicationContext(), room);
@@ -160,6 +179,28 @@ public class CallMultiActivity extends BaseActivity implements CallSession.CallS
         switch (v.getId()) {
             case R.id.meetingHangupImageView:
                 handleHangup();
+                break;
+
+            case R.id.muteImageView: {
+                CallSession session = gEngineKit.getCurrentSession();
+                if (session != null && session.getState() != EnumType.CallState.Idle) {
+                    if (session.toggleMuteAudio(!micEnabled)) {
+                        micEnabled = !micEnabled;
+                    }
+                    muteImageView.setSelected(micEnabled);
+                }
+            }
+                break;
+
+            case R.id.speakerImageView: {
+                CallSession session = gEngineKit.getCurrentSession();
+                if (session != null && session.getState() != EnumType.CallState.Idle) {
+                    if (session.toggleSpeaker(!isSpeakerOn)) {
+                        isSpeakerOn = !isSpeakerOn;
+                    }
+                    speakerImageView.setSelected(isSpeakerOn);
+                }
+            }
                 break;
         }
     }

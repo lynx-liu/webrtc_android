@@ -4,14 +4,32 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/av_bg_call_black"
     tools:context="com.android.CallMultiActivity">
+
+    <Chronometer
+        android:id="@+id/durationTextView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:padding="32dp"
+        android:textSize="36sp"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textSize="36sp"
+        android:textColor="@android:color/white" />
 
     <FrameLayout
         android:id="@+id/meeting_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3"
-        android:background="@color/av_bg_call_black" />
+        android:visibility="invisible"
+        android:layout_weight="2"/>
 
     <include
         layout="@layout/av_p2p_meeting_action"

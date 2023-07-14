@@ -95,20 +95,6 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
             });
         }
 
-        if(!WebRTCEngine.isScreencaptureEnabled()) {
-            fullscreenRenderer.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    Log.d("llx", event.toString());
-                    int action = event.getAction();
-                    int x = (int) (event.getX() * 65536 / fullscreenRenderer.getWidth());
-                    int y = (int) (event.getY() * 65536 / fullscreenRenderer.getHeight());
-                    gEngineKit.sendData(new byte[]{(byte) action, (byte) ((x >> 24) & 0xFF), (byte) ((x >> 16) & 0xFF), (byte) ((x >> 8) & 0xFF), (byte) (x & 0xFF), (byte) ((y >> 24) & 0xFF), (byte) ((y >> 16) & 0xFF), (byte) ((y >> 8) & 0xFF), (byte) (y & 0xFF)});
-                    return true;
-                }
-            });
-        }
-
         pipRenderer.setVisibility(View.GONE);
 
 //        if(isOutgoing){ //测试崩溃对方是否会停止
@@ -148,7 +134,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
                 outgoingActionContainer.setVisibility(View.GONE);
                 connectedActionContainer.setVisibility(View.GONE);
                 descTextView.setText(R.string.av_video_invite);
-                if (currentState == CallState.Incoming && !WebRTCEngine.isScreencaptureEnabled()) {
+                if (currentState == CallState.Incoming) {
                     View surfaceView = gEngineKit.getCurrentSession().setupLocalVideo(false);
                     Log.d(TAG, "init surfaceView != null is " + (surfaceView != null) + "; isOutgoing = " + isOutgoing + "; currentState = " + currentState);
                     if (surfaceView != null) {
@@ -221,7 +207,7 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
         if (localSurfaceView.getParent() != null) {
             ((ViewGroup) localSurfaceView.getParent()).removeView(localSurfaceView);
         }
-        if (isOutgoing && remoteSurfaceView == null  && !WebRTCEngine.isScreencaptureEnabled()) {
+        if (isOutgoing && remoteSurfaceView == null) {
             if (fullscreenRenderer != null && fullscreenRenderer.getChildCount() != 0)
                 fullscreenRenderer.removeAllViews();
             fullscreenRenderer.addView(localSurfaceView);
@@ -332,13 +318,9 @@ public class FragmentVideo extends SingleCallFragment implements View.OnClickLis
 
         // 切换到语音拨打
         if (id == R.id.outgoingAudioOnlyImageView || id == R.id.incomingAudioOnlyImageView || id == R.id.connectedAudioOnlyImageView) {
-            if(WebRTCEngine.isScreencaptureEnabled()) {//投屏端切换语音时,对方也切换语音
-                if (session != null) {
-                    if (callSingleActivity != null) callSingleActivity.isAudioOnly = true;
-                    session.switchToAudio();
-                }
-            } else {//摄像头端切换语音时, 只关闭自己的摄像头和推流
-                gEngineKit.getCurrentSession().switchLocalVideoEnable();
+            if (session != null) {
+                if (callSingleActivity != null) callSingleActivity.isAudioOnly = true;
+                session.switchToAudio();
             }
         }
 
