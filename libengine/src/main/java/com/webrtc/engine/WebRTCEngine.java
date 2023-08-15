@@ -456,7 +456,7 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
         PeerConnection.IceServer iceServer0 = PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
                 .createIceServer();
         iceServers.add(iceServer0);
-/*
+
         PeerConnection.IceServer iceServer1 = PeerConnection.IceServer.builder("stun:42.192.40.58:3478?transport=udp")
                 .createIceServer();
         PeerConnection.IceServer iceServer2 = PeerConnection.IceServer.builder("turn:42.192.40.58:3478?transport=udp")
@@ -464,29 +464,6 @@ public class WebRTCEngine implements IEngine, Peer.IPeerEvent {
                 .setPassword("123456")
                 .createIceServer();
         PeerConnection.IceServer iceServer3 = PeerConnection.IceServer.builder("turn:42.192.40.58:3478?transport=tcp")
-                .setUsername("ddssingsong")
-                .setPassword("123456")
-                .createIceServer();
-*/
-/*
-        PeerConnection.IceServer iceServer1 = PeerConnection.IceServer.builder("stun:154.221.16.209:3478?transport=udp")
-                .createIceServer();
-        PeerConnection.IceServer iceServer2 = PeerConnection.IceServer.builder("turn:154.221.16.209:3478?transport=udp")
-                .setUsername("test")
-                .setPassword("123456")
-                .createIceServer();
-        PeerConnection.IceServer iceServer3 = PeerConnection.IceServer.builder("turn:154.221.16.209:3478?transport=tcp")
-                .setUsername("test")
-                .setPassword("123456")
-                .createIceServer();
- */
-        PeerConnection.IceServer iceServer1 = PeerConnection.IceServer.builder("stun:120.46.147.229:3478?transport=udp")
-                .createIceServer();
-        PeerConnection.IceServer iceServer2 = PeerConnection.IceServer.builder("turn:120.46.147.229:3478?transport=udp")
-                .setUsername("ddssingsong")
-                .setPassword("123456")
-                .createIceServer();
-        PeerConnection.IceServer iceServer3 = PeerConnection.IceServer.builder("turn:120.46.147.229:3478?transport=tcp")
                 .setUsername("ddssingsong")
                 .setPassword("123456")
                 .createIceServer();
